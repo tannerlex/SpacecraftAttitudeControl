@@ -115,7 +115,6 @@ disp(q_LB.v);
 %% Rotation Vector
 % What is the rotation vector that describes the rotation from the B frame
 % to the L frame?  Use the same axis and angle from above.
-theta_LB = theta * e;
+theta_LB = angle * e;
 disp('theta_LB = ');
 disp(theta_LB);
-
