@@ -1,5 +1,5 @@
 %% Attitude Dynamics Assignment
-% Name:
+% Name: Tanner Lex Jones
 
 %% Preliminaries
 % This cleans all variables and sets the format to display more digits.
