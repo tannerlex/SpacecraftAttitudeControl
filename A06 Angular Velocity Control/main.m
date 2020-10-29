@@ -119,7 +119,7 @@ display(min(dt_unstable), 'Additional Delay to Marginally Stable (s)')
 J_unstable = [J_C_P(1,1)/GM1; ...
               J_C_P(2,2)/GM2; ...
               J_C_P(3,3)/GM3;];
-display(J_unstable, 'Inertial Value to Marginally Stable (kg/m^2)')
+display(J_unstable, 'Inertial Value to Marginally Stable (kg*m^2)')
 % [GM_unstable, PM_unstable] = margin(Kd1*C1*1/(J_unstable(1)*s));
           
 %% 8. Plot a Closed Loop Bode Plot for each of the three axes
@@ -150,7 +150,7 @@ stepinfo3 = stepinfo(CLTF3);
 display(stepinfo3.RiseTime, 'Rise Time 3 (s)');
 
 %% 11. What is the overshoot for each of the three axes?
-display(stepinfo1.Overshoot, 'Overshoot 1 (%)'); % units?
+display(stepinfo1.Overshoot, 'Overshoot 1 (%)');
 display(stepinfo2.Overshoot, 'Overshoot 2 (%)');
 display(stepinfo3.Overshoot, 'Overshoot 3 (%)');
 
