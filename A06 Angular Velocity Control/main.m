@@ -9,7 +9,7 @@ clc
 format long
 
 %%
-ctrlpref
+% ctrlpref
 
 % Addpath to Attitude Representations Folder
 addpath('../01 Attitude Representations')
@@ -60,7 +60,7 @@ G3 = 1/(J_C_P(3,3)*s);
 display(G3);
 
 %% 2. What is the open loop gain crossover frequency in the controller?
-PM = 60*pi/180; % Phase Margin (rad)
+PM = 65*pi/180; % Phase Margin (rad)
 DC_phase = -90*pi/180; % Phase at DC (rad)
 % -pi = DC_phase - Phase Margin - Xover_angle
 % Xover_angle = DC_phase -PM + pi
@@ -68,7 +68,7 @@ Xover_angle = DC_phase - PM + pi;
 
 % crossover frequency
 w_crossover = Xover_angle/dt_delay; % rad/s
-display(w_crossover, 'Open Loop Gain Crossover Frequency (rad/s)');
+display(w_crossover/(2*pi), 'Open Loop Gain Crossover Frequency (Hz)');
 
 %% 3. What are the proportional control gains for each of the three axes?
 % Design proportional control gains such that all three axes have identical
@@ -98,13 +98,13 @@ title('Open Loop Bode Plot');
 legend('1', '2', '3');
 
 %% 5. Display the phase margin and gain margin of each of the three controlled axes
-[GM1, PM1] = margin(Kd1*C1*G1);
+[GM1, PM1] = margin(C1*G1);
 display(mag2db(GM1), 'Gain Margin 1 (dB)');
 display(PM1, 'Phase Margin 1 (degrees)');
-[GM2, PM2] = margin(Kd2*C2*G2);
+[GM2, PM2] = margin(C2*G2);
 display(mag2db(GM2), 'Gain Margin 2 (dB)');
 display(PM2, 'Phase Margin 2 (degrees)');
-[GM3, PM3] = margin(Kd3*C3*G3);
+[GM3, PM3] = margin(C3*G3);
 display(mag2db(GM3), 'Gain Margin 3 (dB)');
 display(PM3, 'Phase Margin 3 (degrees)');
 
@@ -113,25 +113,25 @@ dt_unstable = [PM1*pi/180/w_crossover; ...
                PM2*pi/180/w_crossover; ...
                PM3*pi/180/w_crossover];
 display(min(dt_unstable), 'Additional Delay to Marginally Stable (s)')
-% [GM_unstable, PM_unstable] = margin(Kd3*C3*G3*exp(-s*dt_unstable(3)));% huh?
+% [GM_unstable, PM_unstable] = margin(C1*G1*exp(-s*dt_unstable(1)));
 
 %% 7. If your estimate of the inertia is wrong, how small does it need to be to drive your system to marginal stability?
 J_unstable = [J_C_P(1,1)/GM1; ...
               J_C_P(2,2)/GM2; ...
               J_C_P(3,3)/GM3;];
-display(min(J_unstable), 'Inertial Value to Marginally Stable (kg/m)') % units?
+display(J_unstable, 'Inertial Value to Marginally Stable (kg/m^2)')
 % [GM_unstable, PM_unstable] = margin(Kd1*C1*1/(J_unstable(1)*s));
           
 %% 8. Plot a Closed Loop Bode Plot for each of the three axes
-CLTF1 = feedback(Kd1*C1*G1, 1);
+CLTF1 = feedback(C1*G1, 1);
 figure
 bode(CLTF1, {1,1000})
 title('Closed Loop Bode Plot 1');
-CLTF2 = feedback(Kd2*C2*G2, 1);
+CLTF2 = feedback(C2*G2, 1);
 figure
 bode(CLTF2, {1,1000})
 title('Closed Loop Bode Plot 2');
-CLTF3 = feedback(Kd3*C3*G3, 1);
+CLTF3 = feedback(C3*G3, 1);
 figure
 bode(CLTF3, {1,1000})
 title('Closed Loop Bode Plot 3');
@@ -150,13 +150,49 @@ stepinfo3 = stepinfo(CLTF3);
 display(stepinfo3.RiseTime, 'Rise Time 3 (s)');
 
 %% 11. What is the overshoot for each of the three axes?
-display(stepinfo1.Overshoot, 'Overshoot 1 '); % units?
-display(stepinfo2.Overshoot, 'Overshoot 2 ');
-display(stepinfo3.Overshoot, 'Overshoot 3 ');
+display(stepinfo1.Overshoot, 'Overshoot 1 (%)'); % units?
+display(stepinfo2.Overshoot, 'Overshoot 2 (%)');
+display(stepinfo3.Overshoot, 'Overshoot 3 (%)');
 
 %% 12. Plot the results of your simulink simulation.  
 %      Does the simscape model behave like the three linear sisomodels?
+% The Simscape model does behave very much like the linear systems. 
+% Only in the transient does it vary on the order of mrads/s.
 
+% Run the Simulation
+sim('VelocityControl',t_sim)
+
+% Plot the simulation result
+figure
+plot(wbi_B)
+title('Angular Velocity Simscape Simulation');
+legend('\omega_B_I_x','\omega_B_I_y','\omega_B_I_z','Interpreter','tex')
+xlabel('seconds');
+ylabel('radians/s');
+
+% Plot the linear systems result
+figure
+plot(wXYZ_B)
+title('Angular Velocity Linear Systems');
+legend('\omega_X','\omega_Y','\omega_Z','Interpreter','tex')
+xlabel('seconds');
+ylabel('radians/s');
+
+% Plot the difference
+figure
+plot(wXYZ_B-wbi_B)
+title('Angular Velocity Difference');
+legend('\omega_X','\omega_Y','\omega_Z','Interpreter','tex')
+xlabel('seconds');
+ylabel('radians/s');
 
 %% 13. Comment on your results
-
+% The controller that was developed was simple to implement. By a small 
+% amount of trial and error an appropriate Phase Margin was chosen such
+% that all other design criteria was met. Also the closed loop Bode plots
+% and the simulation results show that there is not a long settling period
+% or great amount of oscillating resonance in the closed loop system.
+% The difference in the two simulations is due to the feed forward
+% linearization, all other things being equal. It builds confidence to see
+% that the feed forward torque method for linearization and decoupling
+% works so well.
