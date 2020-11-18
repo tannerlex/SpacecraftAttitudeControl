@@ -142,14 +142,14 @@ config.C2.value = Kd1*C_pade8;
 config.G2.value = 1/s;
 config.OL1.View = {'bode'};
 config.OL2.View = {};
-controlSystemDesigner(config);
+% controlSystemDesigner(config);
 
 Ko = 3356.8; % outer loop control gain
 Zo = -0.01; % zero location (rad/s)
 Po = -188.5; % pole location (rad/s)
-Co = tf(Ko*(s-Zo)/(s-Po));
+Co = Ko*(s-Zo)/(s*(s-Po));
 OLTF = Co*CLTF1/s;
 bode(OLTF, {0.01, 1000})
 
 %% Run the Simulation
-sim('AngleControl',60)
+% sim('AngleControl',60)
