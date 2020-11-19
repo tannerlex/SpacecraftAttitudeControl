@@ -14,6 +14,9 @@ addpath('../01 Attitude Representations')
 %% Addpath to Attitude Kinematics Folder
 addpath('../02 Attitude Kinematics')
 
+% Addpath to Attitude Dynamics Folder
+addpath('../03 Attitude Dynamics')
+
 %% Load qBus
 load qBus.mat
 
