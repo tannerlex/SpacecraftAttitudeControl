@@ -31,24 +31,16 @@ mass_properties
 dt_delay = 0.01; % seconds
 
 % amount of time to run simulation
-t_sim = 0.1; % seconds
-
-% Commanded angular velocity of the B frame relative to the I frame
-% projected to the B frame.
-wbistar_B = [1;1;1]; % radians/second
+t_sim = 6; % seconds
 
 % Initial attitude
 e = [1; 1; 1]; e = e/norm(e);
 q0_BI = e2q(e, 45*pi/180);
 % Desired Attitude
-qstar_BI = e2q(e, 180*pi/180);
+qstar_BI = e2q(e, 225*pi/180);
 
 A0_BI = q2A(q0_BI);
 A0_IB = A0_BI';
-
-% Initial Satellite Angular Velocity
-wbi0_B = [0; 0; 0];%*pi/180; % rad/s
-wbi0_P = A_PB*wbi0_B;
 
 % Define transfer function variable
 s = tf('s');
@@ -177,6 +169,9 @@ Zo = -0.01; % zero location (rad/s)
 Po = -188.5; % pole location (rad/s)
 Co = Ko*(s-Zo)/(s*(s-Po));
 OLTF = Co*CLTF1/s;
+% config.C1.value = Co;
+% controlSystemDesigner(config);
+
 
 %% Outer Loop Design Questions
 % *What is the gain crossover frequency of your outer loop?* 2.46 Hz
@@ -212,9 +207,9 @@ OLTF = Co*CLTF1/s;
 %
 % *Why did you place the zero where you did?*
 % This is a question of the disturbance rejection vs stability. I placed
-% the zero such that with ~15 min of control, any constant disturbance is
+% the zero such that with ~12 min of control, any constant disturbance is
 % rejected. This assumes that the controller will be used for long periods
-% of time and that the initial ~15 min is relatively a low cost. Because it
+% of time and that the initial ~12 min is relatively a low cost. Because it
 % is a slow zero the system has a lot more range of stability.
 %
 % *What is the frequency of the real pole?* 30 rad/s
@@ -236,9 +231,16 @@ OLTF = Co*CLTF1/s;
 % system. You can see how the phase bump between the zero and the pole
 % creates a region of stable phase margin from which to choose the gain.
 %
-% *What is the phase of your controller at low frequency?* 
+% *What is the phase of your controller at low frequency?* -180 degrees
+%
+% *What happens to the phase when the zero is added?* At the zero frequency
+% the phase is increased by 45 degrees and it adds a total of 90 phase to
+% the system, most of which is added within the next decade.
+%
+% *What happens to the phase when the pole is added?* The pole causes a
+% decrease in phase just as the zero causes an increase in phase.
 figure
-bode(OLTF, {0.01, 1000});
+bode(OLTF, {0.001, 1000});
 title('Open Outer Loop Bode Plot');
 
 
@@ -248,6 +250,7 @@ title('Open Outer Loop Bode Plot');
 % input exactly what the output would be. The magnitude plot tells you what
 % amplitude to expect relative to the input and the phase plot tells you
 % how much the output will lag behind the input.
+COLTF = feedback(OLTF,1);
 figure
 bode(COLTF, {0.01, 1000});
 title('Closed Outer Loop Bode Plot');
@@ -288,9 +291,32 @@ display(stepinfoO);
 %% Disturbance Transfer Function Bode Plot
 % The bode plots of the disturbance transfer functions show how the system
 % would respond to sinusoidal disturbances. These plots show that they
-% behave as band-pass filters, rejecting the low and high frequencies.
+% behave as band-pass filters, rejecting the low and high frequencies. Note
+% that the separate axes have different magnitudes, but that the phase is
+% the same. This is because of the different moments of inertia for each
+% axis.
+Go = 1/s;
+DTF1 = G1*Go/(1 + C1*G1 + C1*Co*G1*Go);
+DTF2 = G2*Go/(1 + C2*G2 + C2*Co*G2*Go);
+DTF3 = G3*Go/(1 + C3*G3 + C3*Co*G3*Go);
+figure
+bode(DTF1, DTF2, DTF3, {.0001, 10000});
+title('Disturbance Transfer Functions Bode Plot');
 
-% 
 
-%% Run the Simulation
-% sim('AngleControl',60)
+%% Step Response of the Disturbance Transfer Function
+% As discussed above on the question of where to place the zero in the
+% outer loop control, there is great advantage to having a slow zero, the
+% drawback is the time needed for the controller to reject constant
+% disturbance. This step response of the disturbance transfer function
+% shows that ~12min is needed. After that time there is no perceivable
+% effect of a constant disturbance. Also note that because each axis has a
+% different transfer function for the disturbance, the step response plots
+% are different in magnitude.
+figure
+step(DTF1, DTF2, DTF3, 700);
+title('Step Response of the Disturbance Transfer Function');
+
+
+%% Simulink Simulation
+sim('AngleControl', t_sim)
