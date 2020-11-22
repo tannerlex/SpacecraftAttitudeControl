@@ -1,4 +1,4 @@
-%% Angle Control Assignment
+%% Angle (Attitude) Control Assignment
 % Name: Tanner Lex Jones
 
 %% Preliminaries
@@ -8,6 +8,7 @@ clearvars
 close all
 clc
 format long
+warning('off')
 
 %%
 % ctrlpref
@@ -339,6 +340,8 @@ title('Step Response of the Disturbance Transfer Function');
 %
 % *Does it behave like a linear system?* Yes, this behavior is
 % indistinguishable from the analytically calculated linear step response.
+q0_BI = e2q(e, -45*pi/180);
+qstar_BI = e2q(e, 135*pi/180);
 input_type = 1; % constant input
 input_param = 0; % unused parameter for constant input type
 sim('AngleControl', 0.5)
@@ -379,11 +382,18 @@ title('Simulation Ramp Response Error')
 
 
 %% Simulink Simulation - Sinusoidal Input
-% 
+% The output signal is attenuated and off phase as expected when
+% referencing the bode plot. Even though this is the bandwidth of the
+% system, I wouldn't say it is a frequency that is very useable. But then
+% what good is rotating a satellite back and forth like this? The important
+% thing here is to have another metric with which to classify the system's
+% performance. So, I think it is a good thing that the controller can shake
+% the satellite so, though it should not be done.
 %
-% *Did the system behave like you expected?*
-% *How does the output sine wave compare to the commanded?*
-% Comment on the results.
+% *Did the system behave like you expected?* Yes
+%
+% *How does the output sine wave compare to the commanded?* It is
+% attenuated by the 3dB (~70%), and the phase appears to lag about 90 deg.
 input_type = 3; % sinusoidal input
 freq = bandwidth(COLTF); % frequency of 3dB bandwidth (rad/s)
 input_param = freq;
@@ -398,11 +408,15 @@ plot(theta_error)
 title('Simulation Sinusoidal Response Error')
 
 %% Simulink Simulation - Constant Disturbance
-% Command the satellite to hold its current attitude (qstar_BI = q0_BI).
-% Send a constant disturbance torque into the Simscape model.
-% Does the controller reject the constant disturbance?
-% How long does it take to reject it?
-% Plot the results and comment.
+% Due to the integrator used in the outer loop controller there is a low
+% frequency rolloff that you see in the disturbance transfer function bode
+% plot. The results of this simulation prove that this is true.
+%
+% *Does the controller reject the constant disturbance?* Yes
+% *How long does it take to reject it?* Looking at the simulation plot
+% shown it takes about 12 minutes as the analysis above would support.
+q0_BI = e2q(e, 0*pi/180);
+qstar_BI = q0_BI;
 input_type = 1; % constant input
 d_type = 1; % constant disturbance
 sim('AngleControl', 700)
@@ -412,19 +426,61 @@ title('Simulation of Constant Disturbance')
 
 
 %% Simulink Simulation - Sinusoidal Disturbance
-% Apply a sine wave disturbance torque with a frequency equal to the 3dB bandwidth of your closed outer loop.
-% Plot the results of the sine wave disturbance.
-% Does the system attenuate the disturbance like you expected?
-% Is the phase difference between the input and output like you expected?
-% Plot the results and comment.
+% The bode plot for the disturbance transfer function show a band-pass
+% filter for disturbances. Any sinusoidal disturbance in the middle
+% frequencies will be greatly attenuated, but any extreme frequency will be
+% rejected.
+%
+% *Does the system attenuate the disturbance like you expected?* Yes, the
+% output signal is greatly attenuate as the bode plot shows it should be.
+%
+% *Is the phase difference between the input and output like you expected?*
+% Yes, it appears to lag the input by ~90deg which is near where the bode
+% plot has it.
+q0_BI = e2q(e, 0*pi/180);
+qstar_BI = q0_BI;
+input_type = 1; % constant input
 d_type = 3; % sinusoidal disturbance
 freq = bandwidth(COLTF); % frequency of 3dB bandwidth (rad/s)
 input_param = freq;
 sim('AngleControl', 1)
 figure
-plot(theta_in, ':')
-hold on
 plot(theta_out)
 title('Simulation of Sinusiodal Disturbance')
 
 
+%% Attitude Control Summary
+% The design process began with proportional velocity control of the
+% satellite. The important parameters to choose here are the stability
+% margins. The result of this design becomes the inner loop of the attitude
+% controller. 
+%
+% In order to reject disturbances it is necessary to employ an integrator
+% in the attitude controller. This, however would necessarily create a
+% system that is not stabilizable because each of the 2 integrators in the
+% system decrease the phase by 90 degrees. As a result the phase starts at
+% -180 degrees. To address this a zero is used to buy back phase. The zero
+% will account for a total increase of 90 degrees. One consequence of the
+% zero is that the system ends up with a flat response in the high
+% frequencies to infinity. Even if it is attenuated this would require the
+% system to use infinite power to control where any high frequency noise
+% exists. Therefore a pole is added which rolls off the high frequency
+% response. The zero is placed where it can buy back a useable amount of
+% phase, but still reject constant disturbance in a timely way. The pole is
+% placed far enough away from the zero that it doesn't cancel it out too
+% soon and there is still a useable phase bump, but not so far that noise
+% becomes a power drain on the system. Once these are done the gain is
+% adjusted to achieve the desired stability margins.
+
+%% Conclusions
+% The tradespace is very large when it comes to satellite attitude control.
+% Before beginning any design, it is very important to fully define the
+% critical requirements and parameters. In the case of this satellite, the
+% moments of inertia were in place before an inner loop controller were
+% even began.
+%
+% Simulation is a critical step for determining stability.
+% Stability is of highest importance. It is clear that an unstable system
+% is an unuseable system. Theory and analysis may show stability where it
+% does not exist. Only after a system has been proven by both theory and
+% simulation may you begin to trust that it can be implemented.
