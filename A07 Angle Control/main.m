@@ -35,15 +35,24 @@ t_sim = 6; % seconds
 
 % Initial attitude
 e = [1; 1; 1]; e = e/norm(e);
-q0_BI = e2q(e, 45*pi/180);
+q0_BI = e2q(e, 0*pi/180);
 % Desired Attitude
-qstar_BI = e2q(e, 225*pi/180);
+qstar_BI = e2q(e, 180*pi/180);
+ramp_slope = pi; % ramp slope (rad/s)
 
 A0_BI = q2A(q0_BI);
 A0_IB = A0_BI';
 
+% Initial Satellite Angular Velocity
+wbi0_B = [0; 0; 0];%*pi/180; % rad/s
+wbi0_P = A_PB*wbi0_B;
+
 % Define transfer function variable
 s = tf('s');
+
+% Disturbance parameters
+d_type = -1;
+dist_level = 0.01;
 
 %%
 % Calculate the principal open loop plant models
@@ -318,5 +327,104 @@ step(DTF1, DTF2, DTF3, 700);
 title('Step Response of the Disturbance Transfer Function');
 
 
-%% Simulink Simulation
-sim('AngleControl', t_sim)
+%% Simulink Simulation - Step Response
+% The response of the system to a commanded step input is what would be
+% expected based on the analytical results. The simulation shows that there
+% could only be a negligible difference with the analytical step response.
+% The curves from each approach appear identical.
+%
+% *Did the system behave like you expected?* Yes, the system behaves just as
+% expected, based on the rise time, settling time, and overshot values that
+% were calculated analytically.
+%
+% *Does it behave like a linear system?* Yes, this behavior is
+% indistinguishable from the analytically calculated linear step response.
+input_type = 1; % constant input
+input_param = 0; % unused parameter for constant input type
+sim('AngleControl', 0.5)
+figure
+plot(theta_in, ':')
+hold on
+plot(theta_out)
+title('Simulation Step Response')
+
+%% Simulink Simulation - Ramp Response
+% The system can follow a ramp pretty well to begin with. In the beginning
+% it will of course lag behind the commanded input. Eventually it converges
+% to the commanded input. This is about the same time required for
+% disturbance rejection.
+% 
+% *Did the system behave like you expected?* I expected a lag in the
+% tracking of a ramp, but I didn't really expect that the system would
+% catch up. Then I derived the steady state error and believed that it
+% would catch up with no error, but didn't know how that would look until
+% this simulation was ran. 
+% 
+% *How long does it take to track a ramp?* It takes as long as is needed
+% for disturbance rejection. For this system that means ~12 minutes.
+input_type = 2; % ramp input
+q0_BI = e2q(e, 0*pi/180);
+qstar_BI = q0_BI;
+ramp_slope = pi; % ramp slope (rad/s)
+input_param = ramp_slope;
+sim('AngleControl', 700)
+figure
+plot(theta_in.Time(1:12000), theta_in.Data(1:12000,:), ':')
+hold on
+plot(theta_out.Time(1:12000), theta_out.Data(1:12000,:))
+title('Simulation Ramp Response')
+figure
+plot(theta_error)
+title('Simulation Ramp Response Error')
+
+
+%% Simulink Simulation - Sinusoidal Input
+% 
+%
+% *Did the system behave like you expected?*
+% *How does the output sine wave compare to the commanded?*
+% Comment on the results.
+input_type = 3; % sinusoidal input
+freq = bandwidth(COLTF); % frequency of 3dB bandwidth (rad/s)
+input_param = freq;
+sim('AngleControl', 1)
+figure
+plot(theta_in, ':')
+hold on
+plot(theta_out)
+title('Simulation Sinusiodal Response')
+figure
+plot(theta_error)
+title('Simulation Sinusoidal Response Error')
+
+%% Simulink Simulation - Constant Disturbance
+% Command the satellite to hold its current attitude (qstar_BI = q0_BI).
+% Send a constant disturbance torque into the Simscape model.
+% Does the controller reject the constant disturbance?
+% How long does it take to reject it?
+% Plot the results and comment.
+input_type = 1; % constant input
+d_type = 1; % constant disturbance
+sim('AngleControl', 700)
+figure
+plot(theta_error)
+title('Simulation of Constant Disturbance')
+
+
+%% Simulink Simulation - Sinusoidal Disturbance
+% Apply a sine wave disturbance torque with a frequency equal to the 3dB bandwidth of your closed outer loop.
+% Plot the results of the sine wave disturbance.
+% Does the system attenuate the disturbance like you expected?
+% Is the phase difference between the input and output like you expected?
+% Plot the results and comment.
+d_type = 3; % sinusoidal disturbance
+freq = bandwidth(COLTF); % frequency of 3dB bandwidth (rad/s)
+input_param = freq;
+sim('AngleControl', 1)
+figure
+plot(theta_in, ':')
+hold on
+plot(theta_out)
+title('Simulation of Sinusiodal Disturbance')
+
+
