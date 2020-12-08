@@ -1,4 +1,4 @@
-%% Reaction Wheel Control
+%% Reaction Wheel Control - Assignment 8 (No Saturations)
 % Name: Tanner Lex Jones
 
 %% Preliminaries
@@ -326,7 +326,10 @@ title('Simulation Sinusoidal Response Error')
 
 
 %% Simulink Simulation - Constant Disturbance
-% 
+% The time needed to reject a constant disturbance is about 10 minutes
+% before the error goes to zero. This is great because the controller
+% should be used for long periods of time, so in the long run having this
+% settling period after turning on the control won't matter significantly.
 e = [3; 5; 2]; e = e/norm(e);
 q0_BI = e2q(e, 0*pi/180);
 A0_BI = q2A(q0_BI);
@@ -343,7 +346,11 @@ title('Simulation of Constant Disturbance')
 
 
 %% Simulink Simulation - Sinusoidal Disturbance
-% 
+% The satellite position given a sinusoidal disturbance at the 3dB
+% bandwidth frequency is acutally almost an order of magnitude of
+% attenuation. For this simulation it equates to 15 microradians, so as
+% long as the disturbance is on any order less than milliNeuton meters,
+% there should be no problems with a ringing disturbance.
 q0_BI = e2q(e, 0*pi/180);
 qstar_BI = q0_BI;
 A0_BI = q2A(q0_BI);
