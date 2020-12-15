@@ -27,7 +27,7 @@ load qBus.mat
 
 % Load Mass Properties
 mass_properties
-
+Jmax = max(max(abs(J_C_P)));
 
 %% Parameters
 dt_delay = 0.01; % seconds
@@ -39,6 +39,8 @@ zeta = sqrt(2)/2; % Reaction Wheel Damping Ratio
 hwmax = 0.015; % Nms
 hwdotmax = 0.004; % Nm
 safety = 0.5; % reaction wheel safety factor
+wmax = safety*hwmax/Jmax;
+wdotmax = safety*hwdotmax/Jmax;
 
 % amount of time to run simulation
 t_sim = 20; % seconds
@@ -52,7 +54,7 @@ q0_BI.v = [0;0;0];
 
 % Desired Attitude
 e = [1; 2; 3]; e = e/norm(e);
-qstar_BI = e2q(e, 90*pi/180);
+qstar_BI = e2q(e, 180*pi/180);
 ramp_slope = pi; % ramp slope (rad/s)
 A0_BI = q2A(q0_BI);
 A0_IB = A0_BI';
@@ -63,7 +65,7 @@ wbi0_P = A_PB*wbi0_B;
 s = tf('s');
 
 % Disturbance parameters
-d_type = -1; % 1 for constant, 3 for sine, else zero
+d_type = 0; % 1 for constant, 3 for sine, else zero
 dist_level = 0.0001;
 
 %%
@@ -173,9 +175,7 @@ config.OL2.View = {};
 % controlSystemDesigner(config);
 
 % Design proportional controller
-% Kp = 1/bode(Inner_CLTF1/s, 2 * pi * 3.018); % TODO: remove Bryan's Code
-% (and anyway, from whence comes the 3.018?)
-Kp = 8.0;
+Kp = 1.0;
 
 % Design with lead
 Ko = 3075; % outer loop control gain
@@ -209,7 +209,7 @@ safety = 1.1;
 
 input_type = 1; % constant input
 input_param = 0; % unused parameter for constant input type
-t_sim = 200;
+t_sim = 1000;
 sim('AngleControlWheels', t_sim)
 figure
 plot(theta_in, ':')
@@ -227,10 +227,24 @@ title('Simulation Step Response')
 safety = 0.5;
 
 input_type = 1; % constant input
-t_sim = 200;
+t_sim = 1000;
 sim('AngleControlWheels', t_sim)
 figure
 plot(theta_in, ':')
 hold on
 plot(theta_out)
 title('Simulation Step Response')
+
+
+%% Simulink Simulation - 3. Profiled trapezoidal trajectory
+% 
+
+t_sim = 30;
+sim('SatelliteAttitude', t_sim)
+
+
+%% Simulink Simulation - 4. Command Feedforward
+% 
+
+sim('SatelliteAttitudeControl', t_sim)
+

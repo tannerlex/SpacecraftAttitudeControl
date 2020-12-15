@@ -1,6 +1,7 @@
 function [th, w, wdot] = ...
     profiled_scalar(th_0, th_f, t, wdotmax, wmax)
-% profiled_scalar creates a smooth slew between any two angles based on the
+% profiled_scalar calculates angle, velocity, and acceleration of a smooth
+% slew between any two angles based on the given limitations.
 % 
 % inputs:
 % the maximum angular velocity and acceleration.
@@ -66,7 +67,7 @@ elseif (t < t3)
     wdot = -wdotmax;
     w = wmax + wdot*(t - t2);
     th = th_0 + th_a/2 + th_c + (w + (wmax - w)/2)*(t - t2);
-elseif (t >= t3)
+else % (t >= t3)
     % finished moving
     wdot = 0;
     w = 0;
