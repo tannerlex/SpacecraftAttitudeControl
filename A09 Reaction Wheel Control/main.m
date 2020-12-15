@@ -175,13 +175,13 @@ config.OL2.View = {};
 % controlSystemDesigner(config);
 
 % Design proportional controller
-Kp = 1.0;
+Kp = 8.0;
 
 % Design with lead
 Ko = 3075; % outer loop control gain
-Zo = -0.01; % zero location (rad/s)
-Po = -400; % pole location (rad/s)
-Co = Ko*(s-Zo)/(s*(s-Po));
+Zo = 0.01; % zero location (rad/s)
+Po = 400; % pole location (rad/s)
+Co = Ko*(s+Zo)/(s*(s+Po));
 config.C1.value = Co;
 % controlSystemDesigner(config);
 
@@ -209,7 +209,7 @@ safety = 1.1;
 
 input_type = 1; % constant input
 input_param = 0; % unused parameter for constant input type
-t_sim = 1000;
+t_sim = 200;
 sim('AngleControlWheels', t_sim)
 figure
 plot(theta_in, ':')
@@ -227,7 +227,7 @@ title('Simulation Step Response')
 safety = 0.5;
 
 input_type = 1; % constant input
-t_sim = 1000;
+t_sim = 200;
 sim('AngleControlWheels', t_sim)
 figure
 plot(theta_in, ':')
