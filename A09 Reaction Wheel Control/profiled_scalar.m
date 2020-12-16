@@ -35,10 +35,10 @@ t1 = wmax/wdotmax;
 th_a = wdotmax*t1^2;
 
 % determine if this is a trapezoidal or triangular profile
-if (abs(th_a) >= abs(th_f))
+if (abs(th_a) >= abs(th_f - th_0))
     % triangular profile
     th_a = th_f - th_0; % all of the travel will happen during acceleration
-    t1 = sqrt(th_f/wdotmax);
+    t1 = sqrt((th_f - th_0)/wdotmax);
     
     % eliminate coasting period
     t2 = t1;
@@ -46,7 +46,7 @@ if (abs(th_a) >= abs(th_f))
     wmax = wdotmax*t1;
 else
     % trapezoidal profile
-    th_c = th_f - th_0 - th_a; % calculate angular travel during coast
+    th_c = (th_f - th_0) - th_a; % calculate angular travel during coast
     t2 = th_c/wmax + t1;
 end
 t3 = t2 + t1;
