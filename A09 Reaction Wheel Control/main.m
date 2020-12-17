@@ -59,6 +59,9 @@ ramp_slope = pi; % ramp slope (rad/s)
 A0_BI = q2A(q0_BI);
 A0_IB = A0_BI';
 
+input_type = 1; % constant input
+input_param = 0; % unused parameter for constant input type
+
 wbi0_P = A_PB*wbi0_B;
 
 % Define transfer function variable
@@ -200,51 +203,142 @@ display(PMO1, 'Phase Margin 1 (degrees)');
 
 
 %% Simulink Simulation - 1. Step Response using Integrator/Lead Controller
-% The simulation enters a limit cycle given a step input. Because we need
-% stability as the first priority this shows that the design is not
-% complete.
+% The simulation can enter a limit cycle depending on the given step input.
+% Because we need stability as the first priority this shows that the
+% design is not complete.
+% 
+% *How long did it take to achieve the final desired attitude?*
+% It takes over 100 seconds in this case.
+% 
+% *Discuss the attitude error during the slew maneuver.*
+% The error shows huge overshoots that it keeps trying to compensate for,
+% but it eventually settles in this example.
+% 
+% *Discuss the reaction wheel angular momentum and torque during the slew
+% maneuver.*
+% The reaction wheels limit out on torque in one direction or the other the
+% whole time causing the very triangular wave shaped angular momentum and
+% the square wave shaped torque.
 
 % ensure that the reset will not activate
 safety = 1.1;
 
-input_type = 1; % constant input
-input_param = 0; % unused parameter for constant input type
 t_sim = 200;
 sim('AngleControlWheels', t_sim)
 figure
-plot(theta_in, ':')
-hold on
-plot(theta_out)
-title('Simulation Step Response')
+plot(theta_error);
+title('1. Step Command Using Integrator/Lead - Angle Error')
+figure
+plot(hw_B);
+title('1. Step Command Using Integrator/Lead - Wheel Angular Momentum');
+figure
+plot(hwdot_B);
+title('1. Step Command Using Integrator/Lead - Wheel Angular Torque');
 
 
 %% Simulink Simulation - 2. Step Response using proportional control switch
 % When a proportional control is added on the condition that the reaction
 % wheels are within the safety factor of saturation, stability is acheived,
 % but the performance is poor.
+% 
+% *How long did it take to achieve the final desired attitude?*
+% 100 seconds, only slightly better than the previous example when it comes
+% to performance for this case.
+% 
+% *Discuss the attitude error during the slew maneuver.*
+% It is really reactive and seems resonant on a certain frequency, but
+% eventually settles down. Ultimately it is stable, but can't be considered
+% as performing the command well.
+% 
+% *Discuss the reaction wheel angular momentum and torque during the slew
+% maneuver.*
+% The wheels hit the safety limits a lot while trying to stabilize and
+% reach the commanded attitude. This causes a lot of overshoot which is at
+% the heart of the poor performance.
+% It is interesting to note that the axis with the largest moment of
+% inertia takes longer to stabilize than the other two. This is because all
+% the reaction wheels were given the same limits.
 
 % engage the reset option
 safety = 0.5;
 
-input_type = 1; % constant input
-t_sim = 200;
+t_sim = 150;
 sim('AngleControlWheels', t_sim)
 figure
-plot(theta_in, ':')
-hold on
-plot(theta_out)
-title('Simulation Step Response')
+plot(theta_error);
+title('2. Step Command w/ Windup Fix - Angle Error')
+figure
+plot(hw_B);
+title('2. Step Command w/ Windup Fix - Wheel Angular Momentum');
+figure
+plot(hwdot_B);
+title('2. Step Command w/ Windup Fix - Wheel Angular Torque');
 
 
 %% Simulink Simulation - 3. Profiled trapezoidal trajectory
+% By only giving the system a command that it can actually fulfill the
+% controller tracks the desired attitude really well. It always lags, but
+% the error is on the order of 10^-3, which is really good.
 % 
+% *How long did it take to achieve the final desired attitude?*
+% 21 seconds, which is remarkable given that the tactic essentially just
+% imposes constraints on the input. This is better by ~80 seconds than the
+% last example.
+% 
+% *Discuss the attitude error during the slew maneuver.*
+% The error gets almost as high as 20mrad which is great performance for
+% tracking the trajectory slew. It also decreases over time. Most of the
+% error accounts for the lag behind the commanded input and the ability of
+% the controller to catch up.
+% 
+% *Discuss the reaction wheel angular momentum and torque during the slew
+% maneuver.*
+% The angular momentum looks like really good trapezoids as expected. In
+% the torque you can see that small corrections happen along the way with
+% some higher frequency bumps.
 
 t_sim = 30;
 sim('SatelliteAttitude', t_sim)
+figure
+plot(theta_error);
+title('3. Profiled Command - Angle Error')
+figure
+plot(hw_B);
+title('3. Profiled Command - Wheel Angular Momentum');
+figure
+plot(hwdot_B);
+title('3. Profiled Command - Wheel Angular Torque');
 
 
 %% Simulink Simulation - 4. Command Feedforward
+% Using the command feedforward modification the error during the slew is
+% very small. For the most part it is within numerical noise. The only
+% noticable errors happen at the transitions between turning the torque on
+% and off.
 % 
+% *How long did it take to achieve the final desired attitude?*
+% 21 seconds, same as the last example.
+% 
+% *Discuss the attitude error during the slew maneuver.*
+% The error here shows how effective this system is at tracking a good
+% profiled input. Other than the transition regions where the torque makes
+% a big change the only error is in the numerical noise. Those transition
+% regions show error on the order of less than 10^-4!
+% 
+% *Discuss the reaction wheel angular momentum and torque during the slew
+% maneuver.*
+% They look as good as possible with the outer loop parameters I gave the
+% system. The overshoot that you get with 60deg PM shows. The edges of the
+% torque changes show that behavior.
 
 sim('SatelliteAttitudeControl', t_sim)
+figure
+plot(theta_error);
+title('4. Feedforward w/ Trapezoidal Command - Angle Error')
+figure
+plot(hw_B);
+title('4. Feedforward w/ Trapezoidal Command - Wheel Angular Momentum');
+figure
+plot(hwdot_B);
+title('4. Feedforward w/ Trapezoidal Command - Wheel Angular Torque');
 
