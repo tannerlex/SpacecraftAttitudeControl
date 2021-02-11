@@ -24,6 +24,9 @@ load qBus.mat
 % Load Mass Properties
 mass_properties
 
+% Load orbit sim data
+load '../B01 Orbital Environment/orbit'
+
 % Load dimensions
 dimensions
 

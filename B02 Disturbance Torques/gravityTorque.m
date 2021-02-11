@@ -8,6 +8,7 @@ A_RI = [xhat_IR'; yhat_IR'; zhat_IR'];
 A_IR = A_RI';
 A_BI = q2A(q_BI);
 A_PR = A_PB * A_BI * A_IR;
+A_BP = A_PB';
 
 % Calculate gravity torque vector using equation 3.157
 J1 = J_C_P(1,1);
