@@ -1,6 +1,6 @@
 function Ta_B = aeroTorque(A, Rcp, rcb_B, Un, Cd, rho, q_BI, v_I)
 
-A_BI = q2A(q_BI); % calculate DCM to convert from/to Inertial to/from Body
+A_BI = q2A(q_BI); % calculate DCM to convert from Inertial to Body Frames
 
 Ta_B = [0; 0; 0]; % initialize torque to zero
 

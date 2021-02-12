@@ -31,6 +31,7 @@ v_I = orbit.v_I;
 s_I = orbit.s_I;
 sun = orbit.sun;
 rho = orbit.rho;
+B_I = orbit.B_I;
 
 % Load dimensions
 dimensions
@@ -38,8 +39,9 @@ dimensions
 %% Constants
 uEarth = 3.986004418e14; % Earth Gravitational Parameter (m^3/s^2) C.104a
 solarFlux = 1366; % Solar Flux (W/m^2)
-c = 2.99792458e8;
-Psr = solarFlux/c;
+c = 2.99792458e8; % Speed of Light
+Psr = solarFlux/c; % Solar Radiation Pressure
+M0_B = [0.001;-0.002;0.003]; % magnetic moment of spacecraft (A*m^2)
 
 %% Initial Conditions
 q0_BI.s = 1;
