@@ -7,7 +7,7 @@ Ts_B = [0; 0; 0]; % initialize torque to zero
 
 s_B = A_BI * (s_I - r_I); % sun vector from satellite in Body frame
 
-for i = 1 : length(A)
+for i = 1 : length(A) % loop over every surface of spacecraft
     F = solarRadiationForce(Psr, Cr(i), A(i), s_B, Un(:,i), sun);
     T = cross(Rcp(:,i) - rcb_B, F);
     Ts_B = Ts_B + T;

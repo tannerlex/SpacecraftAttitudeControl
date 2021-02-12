@@ -30,6 +30,7 @@ r_I = orbit.r_I;
 v_I = orbit.v_I;
 s_I = orbit.s_I;
 sun = orbit.sun;
+rho = orbit.rho;
 
 % Load dimensions
 dimensions
