@@ -47,6 +47,4 @@ M0_B = [0.001;-0.002;0.003]; % magnetic moment of spacecraft (A*m^2)
 q0_BI.s = 1;
 q0_BI.v = [0;0;0];
 
-% time series? does the model do each step at a time?
-% why would we need r_I (position) to calculate solar torque?
-% are the center of mass, center of pressure vectors the same?
+sim('disturbances', 3600)
