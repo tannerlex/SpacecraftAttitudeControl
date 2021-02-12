@@ -47,4 +47,25 @@ M0_B = [0.001;-0.002;0.003]; % magnetic moment of spacecraft (A*m^2)
 q0_BI.s = 1;
 q0_BI.v = [0;0;0];
 
-sim('disturbances', 3600)
+
+%% Simulate
+disturbances = sim('disturbances', 3600);
+save('disturbances.mat', 'disturbances');
+
+%% Plot Results
+figure
+plot(disturbances.Tg_B);
+title("Gravity Gradient Torque")
+ylabel("Tg_B (Nm)")
+figure
+plot(disturbances.Ts_B);
+title("Solar Radiation Torque")
+ylabel("Ts_B (Nm)")
+figure
+plot(disturbances.Ta_B);
+title("Aerodynamic Torque")
+ylabel("Ta_B (Nm)")
+figure
+plot(disturbances.Tm_B);
+title("Magnetic Disturbance Torque")
+ylabel("Tm_B (Nm)")
