@@ -37,7 +37,7 @@ dimensions
 %% Constants
 uEarth = 3.986004418e14; % Earth Gravitational Parameter (m^3/s^2) C.104a
 solarFlux = 1366; % Solar Flux (W/m^2)
-c = 2.9979e8;
+c = 2.99792458e8;
 Psr = solarFlux/c;
 
 %% Initial Conditions
