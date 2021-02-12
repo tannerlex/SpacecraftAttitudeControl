@@ -26,6 +26,10 @@ mass_properties
 
 % Load orbit sim data
 load '../B01 Orbital Environment/orbit'
+r_I = orbit.r_I;
+v_I = orbit.v_I;
+s_I = orbit.s_I;
+sun = orbit.sun;
 
 % Load dimensions
 dimensions
@@ -34,9 +38,12 @@ dimensions
 uEarth = 3.986004418e14; % Earth Gravitational Parameter (m^3/s^2) C.104a
 solarFlux = 1366; % Solar Flux (W/m^2)
 c = 2.9979e8;
-P_SR = solarFlux/c;
+Psr = solarFlux/c;
 
 %% Initial Conditions
 q0_BI.s = 1;
 q0_BI.v = [0;0;0];
 
+% time series? does the model do each step at a time?
+% why would we need r_I (position) to calculate solar torque?
+% are the center of mass, center of pressure vectors the same?
