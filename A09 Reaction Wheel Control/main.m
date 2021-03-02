@@ -32,6 +32,9 @@ Jmax = max(max(abs(J_C_P)));
 %% Parameters
 dt_delay = 0.01; % seconds
 
+% amount of time to run simulation
+t_sim = 20; % seconds
+
 %%
 % Reaction Wheel Properties
 wn = 2*pi*10; % Reaction Wheel Natural Frequency
@@ -41,9 +44,6 @@ hwdotmax = 0.004; % Nm
 safety = 0.5; % reaction wheel safety factor
 wmax = safety*hwmax/Jmax;
 wdotmax = safety*hwdotmax/Jmax;
-
-% amount of time to run simulation
-t_sim = 20; % seconds
 
 % Initial conditions
 wbi0_B = [0;0;0]; % Initial Satellite Angular Velocity rad/s
