@@ -11,9 +11,6 @@ rho = orbit.rho;
 B_I = orbit.B_I;
 A_IE = orbit.A_IE; % DCM from Earth Fixed to Inertial
 
-q0_BI.s = 1;
-q0_BI.v = [0;0;0];
-
 %% Run Mission Planning Simulation
 % Find the quaternions: pointing at the sun & pointing at the ground track
 plan = sim('missionplanning', t_sim);
@@ -145,14 +142,14 @@ end
 
 
 %% Convert from principle frame to body frame for animation
-for i = 1:length(t)
-    q_PI.s = qstar_PI.s.data(i);
-    q_PI.v = qstar_PI.v.data(i,:);
-    q = qUnit(A2q(A_BP*q2A(q_PI)));
-    qstar_BI.v.data(i,:) = q.v;
-    qstar_BI.s.data(i) = q.s;
-end
-plot(qstar_BI.v)
-hold on
-plot(qstar_BI.s)
-sim('animation', t_sim)
+% for i = 1:length(t)
+%     q_PI.s = qstar_PI.s.data(i);
+%     q_PI.v = qstar_PI.v.data(i,:);
+%     q = qUnit(A2q(A_BP*q2A(q_PI)));
+%     qstar_BI.v.data(i,:) = q.v;
+%     qstar_BI.s.data(i) = q.s;
+% end
+% plot(qstar_BI.v)
+% hold on
+% plot(qstar_BI.s)
+% sim('animation', t_sim)

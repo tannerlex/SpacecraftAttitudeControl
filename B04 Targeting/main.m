@@ -34,15 +34,24 @@ dt_delay = 0.01; % seconds
 % amount of time to run simulation
 t_sim = 3600; % seconds
 
-%% Reaction Wheel Properties
-wn = 2*pi*10; % Reaction Wheel Natural Frequency
-zeta = sqrt(2)/2; % Reaction Wheel Damping Ratio
-hwmax = 0.015; % Nms
-hwdotmax = 0.004; % Nm
-safety = 0.5; % reaction wheel safety factor
-wmax = safety*hwmax/Jmax;
-wdotmax = safety*hwdotmax/Jmax;
 
 %% Mission Planning: determine pointing angles throughout mission
 planning
 
+%% Initial conditions
+
+% initial attitude
+q0_BI.s = qs_BI.s.data(1);
+q0_BI.v = qs_BI.v.data(1,:);
+A0_BI = q2A(q0_BI);
+A0_IB = A0_BI';
+
+wbi0_B = [0;0;0]; % Initial Satellite Angular Velocity rad/s
+wbi0_P = A_PB*wbi0_B;
+hw0_B = [0;0;0]; % Initial Reaction Wheel Angular Momentum Nms
+
+%% Controller Design
+controlDesign
+
+%% Run Simulation
+sim('SatelliteAttitudeTargeting',t_sim)
