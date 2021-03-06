@@ -68,5 +68,4 @@ hw0_B = [0;0;0]; % Initial Reaction Wheel Angular Momentum Nms
 controlDesign
 
 %% Run Simulation
-% sim('SatelliteAttitudeTargeting',t_sim)
-sim('SatelliteAttitudeTargeting',1)
+sim('SatelliteAttitudeTargeting',t_sim)

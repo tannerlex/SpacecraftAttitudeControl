@@ -37,7 +37,7 @@ elseif t < switchtimes(4)
     [th, w, wdot] = ...
         profiled_scalar(th_0, th_f, t-switchtimes(3), wdotmax, wmax);
     qr = qUnit(e2q(ehat, th));
-    qstar_PI = qUnit(qX(qr, qs_PI));
+    qstar_PI = qUnit(qX(qr, ql_PI));
     wstar_P = q2A(q_PB) * (ehat * w);
     wdotstar_P = q2A(q_PB) * (ehat * wdot);
 
