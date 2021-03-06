@@ -1,6 +1,3 @@
-% Define transfer function variable
-s = tf('s');
-
 %% Calculate the principal open loop plant models
 G1 = 1/(J_C_P(1,1)*s);
 display(G1);
@@ -8,17 +5,6 @@ G2 = 1/(J_C_P(2,2)*s);
 display(G2);
 G3 = 1/(J_C_P(3,3)*s);
 display(G3);
-
-%% Reaction Wheel Transfer Function
-wn = 2*pi*10; % Reaction Wheel Natural Frequency
-zeta = sqrt(2)/2; % Reaction Wheel Damping Ratio
-hwmax = 0.015; % Nms
-hwdotmax = 0.004; % Nm
-safety = 0.5; % reaction wheel safety factor
-wmax = safety*hwmax/Jmax;
-wdotmax = safety*hwdotmax/Jmax;
-
-Gw = wn^2/(s^2 + 2*zeta*wn*s + wn^2);
 
 %% Inner Loop Proportional Control Design
 % The design for the inner loop should ensure all axes have identical

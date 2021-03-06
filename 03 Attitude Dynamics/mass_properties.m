@@ -31,12 +31,12 @@ Jzz = 0.11387280;
 
 Js_B_B = [ Jxx -Jxy -Jxz
           -Jxy  Jyy -Jyz
-          -Jxz -Jyz  Jzz]; % kg*m^2   
+          -Jxz -Jyz  Jzz]; % kg*m^2
 
 %%
 % Moment of inertia tensor of the satellite structure about the center of
 % mass of the structure projected to the basis vectors of the B frame.
-Js_S_B = Js_B_B - ms*(rsb_B'*rsb_B*eye(3)-rsb_B*rsb_B'); % kg*m^2 
+Js_S_B = Js_B_B - ms*(rsb_B'*rsb_B*eye(3)-rsb_B*rsb_B'); % kg*m^2
 
 %%
 % Extract MOI and POI into vectors for SimScape.
