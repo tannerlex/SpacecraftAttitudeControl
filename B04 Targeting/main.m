@@ -69,3 +69,10 @@ controlDesign
 
 %% Run Simulation
 sim('SatelliteAttitudeTargeting',t_sim)
+
+%% Analysis
+figure
+plot(qstar_BI)
+hold on
+plot(q_BI)
+
