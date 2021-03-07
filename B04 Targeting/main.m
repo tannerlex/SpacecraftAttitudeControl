@@ -71,8 +71,12 @@ controlDesign
 sim('SatelliteAttitudeTargeting',t_sim)
 
 %% Analysis
+% figure
+% plot(qstar_BI.v)
+% hold on
+% plot(qstar_BI.s)
+% plot(q_BI.v)
+% plot(q_BI.s)
 figure
-plot(qstar_BI)
-hold on
-plot(q_BI)
+plot(angle_error)
 

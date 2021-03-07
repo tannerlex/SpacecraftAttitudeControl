@@ -19,8 +19,8 @@ elseif t < switchtimes(2)
         profiled_scalar(th_0, th_f, t-switchtimes(1), wdotmax, wmax);
     qr = qUnit(e2q(ehat, th));
     qstar_PI = qUnit(qX(qr, qs_PI));
-    wstar_P = q2A(q_PB) * (ehat * w);
-    wdotstar_P = q2A(q_PB) * (ehat * wdot);
+    wstar_P = ehat * w;
+    wdotstar_P = ehat * wdot;
 
 elseif t < switchtimes(3)
     % track ground target
@@ -38,8 +38,8 @@ elseif t < switchtimes(4)
         profiled_scalar(th_0, th_f, t-switchtimes(3), wdotmax, wmax);
     qr = qUnit(e2q(ehat, th));
     qstar_PI = qUnit(qX(qr, ql_PI));
-    wstar_P = q2A(q_PB) * (ehat * w);
-    wdotstar_P = q2A(q_PB) * (ehat * wdot);
+    wstar_P = ehat * w;
+    wdotstar_P = ehat * wdot;
 
 else % t >= switchtimes(4)
     % sun pointing
