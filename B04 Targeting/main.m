@@ -77,6 +77,4 @@ sim('SatelliteAttitudeTargeting',t_sim)
 % plot(qstar_BI.s)
 % plot(q_BI.v)
 % plot(q_BI.s)
-figure
-plot(angle_error)
-
+figure;plot(angle_error*180/pi);title('Angle Error');ylabel('degrees')

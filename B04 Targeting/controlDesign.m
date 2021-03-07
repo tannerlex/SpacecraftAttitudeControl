@@ -36,6 +36,7 @@ Kd3 = 1/bode(G3*Gw, w_crossover);
 
 % Set control gains as diagonal matrix for input into simulink.
 Kd = diag([Kd1; Kd2; Kd3]);
+display(Kd, 'Proportional Inner loop Gains');
 
 %% Open Inner Loop Bode Plot of each axis with the controller in the loop
 % The open inner loop bode plot is exactly the same for each axis.
@@ -47,19 +48,15 @@ C2 = tf(Kd2*C_pade8);
 display(tf(Kd2,'OutputDelay', dt_delay));
 C3 = tf(Kd3*C_pade8);
 display(tf(Kd3,'OutputDelay', dt_delay));
-
-% figure
-% bode(C1*G1*Gw, C2*G2*Gw, C3*G3*Gw, {1,1000}, '--');
-% title('Open Inner Loop Bode Plot');
-% legend('1', '2', '3');
-
-
-%% Inner Loop Phase and Gain Margins
-% The gain and phase margins are exactly the same for each axis.
 [GM1, PM1] = margin(C1*G1*Gw);
 display(mag2db(GM1), 'Gain Margin 1 (dB)');
 display(PM1, 'Phase Margin 1 (degrees)');
 
+figure;bode(C1*G1*Gw, C2*G2*Gw, C3*G3*Gw, {1,1000}, '--');grid on;
+title(...
+    sprintf('Open Inner Loop Bode Plot\nPhase Margin = %.2f deg, Gain Margin = %.2f dB',...
+    PM1, 20*log10(GM1)));
+legend('X', 'Y', 'Z');
 
 %% Closed Inner Loop Bode Plot for each of the three axes
 % As expected the inner loop, once closed with feedback, looks like a low
@@ -67,14 +64,15 @@ display(PM1, 'Phase Margin 1 (degrees)');
 Inner_CLTF1 = feedback(C1*G1*Gw, 1);
 Inner_CLTF2 = feedback(C2*G2*Gw, 1);
 Inner_CLTF3 = feedback(C3*G3*Gw, 1);
-% figure
-% bode(Inner_CLTF1, Inner_CLTF2, Inner_CLTF3, {1,1000}, '--');
-% legend('1', '2', '3');
-% title('Closed Inner Loop Bode Plots');
-
-%% Closed Inner Loop Bandwidth
 % Bandwidth is exactly the same for each axis.
-display(bandwidth(Inner_CLTF1)/(2*pi), 'Inner Loop bandwidth 1 (Hz)');
+Inner_BW = bandwidth(Inner_CLTF1)/(2*pi);
+display(Inner_BW, 'Inner Loop bandwidth 1 (Hz)');
+figure
+bode(Inner_CLTF1, Inner_CLTF2, Inner_CLTF3, {1,1000}, '--'); grid on;
+legend('X', 'Y', 'Z');
+title(sprintf('Closed Inner Loop Bode Plots\nBandwidth = %.2f Hz',...
+    Inner_BW));
+
 
 
 %% Inner Loop Step Response Information
@@ -83,6 +81,9 @@ display(bandwidth(Inner_CLTF1)/(2*pi), 'Inner Loop bandwidth 1 (Hz)');
 % have slowed this down significantly, but it is much closer to reality.
 stepinfo1 = stepinfo(Inner_CLTF1);
 display(stepinfo1);
+figure; step(Inner_CLTF1, Inner_CLTF2, Inner_CLTF3);
+title(sprintf('Inner Loop Step Response\nPercent Overshoot = %.2f %% Rise Time = %.2f s, Settling Time = %.2f s',...
+    stepinfo1.Overshoot, stepinfo1.RiseTime, stepinfo1.SettlingTime));
 
 
 %% Outer Loop Control Design
@@ -122,3 +123,27 @@ Outer_OLTF3 = Co*Inner_CLTF3*Go;
 display(mag2db(GMO1), 'Gain Margin 1 (dB)');
 display(PMO1, 'Phase Margin 1 (degrees)');
 
+figure;bode(Outer_OLTF1, Outer_OLTF2, Outer_OLTF3, {1,1000}, '--');grid on;
+title(...
+    sprintf('Open Outer Loop Bode Plot\nPhase Margin = %.2f deg, Gain Margin = %.2f dB',...
+    PMO1, 20*log10(GMO1)));
+legend('X', 'Y', 'Z');
+
+%% Bandwidth and Step response
+Outer_CLTF1 = feedback(Outer_OLTF1,1);
+Outer_CLTF2 = feedback(Outer_OLTF2,1);
+Outer_CLTF3 = feedback(Outer_OLTF3,1);
+
+Outer_BW = bandwidth(Outer_CLTF1)/(2*pi);
+display(Inner_BW, 'Outer Loop bandwidth (Hz)');
+figure
+bode(Outer_CLTF1, Outer_CLTF2, Outer_CLTF3, {1,1000}, '--'); grid on;
+legend('X', 'Y', 'Z');
+title(sprintf('Closed Outer Loop Bode Plots\nBandwidth = %.2f Hz',...
+    Outer_BW));
+
+stepinfoO = stepinfo(Outer_CLTF1);
+display(stepinfoO);
+figure; step(Outer_CLTF1, Outer_CLTF2, Outer_CLTF3);
+title(sprintf('Outer Loop Step Response\nPercent Overshoot = %.2f %% Rise Time = %.2f s, Settling Time = %.2f s',...
+    stepinfoO.Overshoot, stepinfoO.RiseTime, stepinfoO.SettlingTime));
