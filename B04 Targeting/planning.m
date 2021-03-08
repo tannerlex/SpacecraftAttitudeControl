@@ -19,6 +19,12 @@ t = angle_zenith.time; % seconds
 qs_BI = plan.qs_BI;
 ql_BI = plan.ql_BI;
 
+% plot the zenith angle
+figure
+plot(angle_zenith)
+title('Zenith Angle')
+ylabel('$\theta_{zenith}(t)$', 'fontsize', 14, 'Interpreter','latex');
+
 
 %% Find the angle command switch times
 
