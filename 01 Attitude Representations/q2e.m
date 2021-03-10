@@ -10,7 +10,7 @@ theta = 2 * acos(q.s);
 
 if theta == 0
 
-  e = [0; 0; 0];
+  e = [1; 0; 0];
 
 else
 

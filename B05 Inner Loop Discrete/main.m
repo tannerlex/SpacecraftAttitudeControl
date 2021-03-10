@@ -26,7 +26,7 @@ mass_properties
 
 %% Parameters
 dt_delay = 0.01; % seconds
-s_rate = 100; Hz
+dt_sample = 0.01; % Hz
 
 % amount of time to run simulation
 t_sim = 2; % seconds
@@ -45,8 +45,17 @@ q0_BI.v = [0;0;0];
 % Define transfer function variable
 s = tf('s');
 
-%% 1. What are each of the three principal open loop plants?
-% Plant model
+%% Plant models
 G1 = 1/(J_C_P(1,1)*s);
 G2 = 1/(J_C_P(2,2)*s);
 G3 = 1/(J_C_P(3,3)*s);
+
+% convert to discrete time
+G1d = c2d(G1, dt_sample, 'zoh');
+G2d = c2d(G2, dt_sample, 'zoh');
+G3d = c2d(G3, dt_sample, 'zoh');
+% controlSystemDesigner(G1d);
+C1 = 0.70858; % chosen for 60deg phase margin
+
+bode(C1*G1d);
+
