@@ -9,3 +9,6 @@
 *.mp4
 *.asv
 *.zip
+*.json
+*/.vscode*
+
