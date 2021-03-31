@@ -19,6 +19,12 @@ static const DCM A_BP((Matrix3d() <<
    0.997281601762539,   0.073145375732109,   0.008897235242039
 ).finished());
 
+static const DCM J_C_B((Matrix3d() <<
+   0.039940934349015,   0.000002112428714,  -0.000264398339716,
+   0.000002112428714,   0.038351474350995,   0.002296039610626,
+  -0.000264398339716,   0.002296039610626,   0.007260057763141
+).finished());
+
 static const Vector3d Kd(
   0.2461670000000000,   1.337558000000000,   1.386980000000000
 );
@@ -50,5 +56,25 @@ void controllerFunction()
 
     /* unlock mutex to allow buffer access elsewhere */
     receiveLock.unlock();
-  }
-}
+
+    /* calculate the control commands */
+    wbistar_P = A_PB * wbistar_B;
+    wbi_P = A_PB * wbi_B;
+    tc_P(0) = Kd(0) * (wbistar_P(0) - wbi_P(0));
+    tc_P(1) = Kd(1) * (wbistar_P(1) - wbi_P(1));
+    tc_P(2) = Kd(2) * (wbistar_P(2) - wbi_P(2));
+    tc_B = A_BP * tc_P;
+    h_B = J_C_B * wbi_B;
+    tl_B = wbi_B.cross(h_B);
+    t_B = tc_B + tl_B;
+
+    /* send the data off */
+    std::unique_lock<std::mutex> sendLock(sendMutex);
+    sendBuffer[0] = t_B(0);
+    sendBuffer[1] = t_B(1);
+    sendBuffer[2] = t_B(2);
+    sendBuffer[3] = time;
+    sendLock.unlock();
+    sendCv.notify_one();
+  } /* end while (true) loop */
+} /* controllerFunction() */
