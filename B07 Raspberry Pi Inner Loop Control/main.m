@@ -4,7 +4,6 @@
 %% Preliminaries
 
 % This cleans all variables and sets the format to display more digits.
-clearvars
 close all
 clc
 format long
@@ -35,7 +34,15 @@ wbi0_B = [0;0;0];
 
 % Commanded angular velocity of the B frame relative to the I frame
 % projected to the B frame.
-wbistar_B = [5;5;5]*pi/180; % radians/second
+% wbistar_B = [5;5;5]*pi/180; % radians/second
+stepf = ...
+[...
+    zeros(1,201) ones(1,1800)*5*pi/180;...
+    zeros(1,201) ones(1,1800)*5*pi/180;...
+    zeros(1,201) ones(1,1800)*5*pi/180;...
+]'; % radians/second
+timef = 0:0.01:20;
+wbistar_B = timeseries(stepf,0:0.01:20);
 
 % Initial attitude
 q0_BI.s = 1;
@@ -126,5 +133,31 @@ stepinfo3 = stepinfo(CLTF3d);
 display(stepinfo3, 'Step Info 3');
 
 %% Simulate
-sim('discreteInner',t_sim)
+% sim('discreteInner',t_sim) % ran previous to generate output
+
+%% Time Delay
+% The following was used to determine the time delay of 0.011 seconds:
+lbclk = [];
+for i = 1:size(lb_clock.Time,1)
+    lbclk = [lbclk; lb_clock.Data(:,:,i)];
+end
+clk = clock.Data(1:size(lbclk,1));
+dclock = clk - lbclk;
+figure
+plot(dclock)
+title('Time Delay')
+xlim([1 2000])
+xlabel('sample')
+ylabel('delay (seconds)')
+
+
+%% Comparison Results
+figure
+plot(wbi_B_SIL)
+hold on
+plot(wbi_B_SIM)
+plot(wbistar_B)
+title('wbi')
+legend('SIL 1','SIL 2','SIL 3','SIM 1','SIM 2','SIM 3','* 1','* 2','* 3','Location','southeast')
+xlim([1.99 2.2])
 
