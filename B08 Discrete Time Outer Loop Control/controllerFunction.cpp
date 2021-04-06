@@ -100,10 +100,13 @@ void controllerFunction()
     sendBuffer[1] = t_B(1);
     sendBuffer[2] = t_B(2);
     sendBuffer[3] = time;
+    sendBuffer[4] = theta(0);
+    sendBuffer[5] = theta(1);
+    sendBuffer[6] = theta(2);
     sendLock.unlock();
     sendCv.notify_one();
 
-    /* update the memory values */
+    /* update values in memory for the difference equation */
     thz2 = thz1;
     thz1 = theta;
     wz2 = wz1;

@@ -9,7 +9,7 @@ using namespace Eigen;
 typedef Matrix3d DCM; /* Container to hold a DCM */
 
 const int RCVNUM = 12;
-const int SNDNUM = 4;
+const int SNDNUM = 7;
 
 const int RCVPORT = 12345;
 const char* const LOCALIP = "172.31.220.90";

@@ -109,8 +109,36 @@ Cd = 1/(z-1)*(z-zd)/(z-pd);
 K = 1/bode(Cd*CLTF1d*Gd,w_crossover);
 
 
+%% Outer loop design analysis
+Outer_OLTF1 = Cd*CLTF1d*Gd;
+Outer_OLTF2 = Cd*CLTF2d*Gd;
+Outer_OLTF3 = Cd*CLTF3d*Gd;
+figure
+bode(Outer_OLTF1, Outer_OLTF2, Outer_OLTF3, {0.001, 1000}, '--');
+legend('1', '2', '3');
+title('Open Outer Loop Bode Plot');
+
+[GMO1, PMO1] = margin(Outer_OLTF1);
+display(mag2db(GMO1), 'Gain Margin 1 (dB)');
+display(PMO1, 'Phase Margin 1 (degrees)');
+
+Outer_CLTF1 = feedback(Outer_OLTF1,1);
+Outer_CLTF2 = feedback(Outer_OLTF2,1);
+Outer_CLTF3 = feedback(Outer_OLTF3,1);
+figure
+bode(Outer_CLTF1, Outer_CLTF2, Outer_CLTF3, {0.01, 1000}, '--');
+legend('1', '2', '3');
+title('Closed Outer Loop Bode Plot');
+
+Outer_stepinfo1 = stepinfo(Outer_CLTF1);
+Outer_stepinfo2 = stepinfo(Outer_CLTF2);
+Outer_stepinfo3 = stepinfo(Outer_CLTF3);
+display(Outer_stepinfo1);
+
+
 %% Simulate simulink model
 sim('discreteOuter',t_sim)
+
 
 %% Time Delay
 % The following was used to determine the time delay of 0.011 seconds:
@@ -120,4 +148,6 @@ title('Time Delay')
 xlabel('sample')
 ylabel('delay (seconds)')
 
+
+%% Compare Results
 
