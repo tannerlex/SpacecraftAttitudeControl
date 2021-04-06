@@ -8,7 +8,7 @@ using namespace Eigen;
 
 typedef Matrix3d DCM; /* Container to hold a DCM */
 
-const int RCVNUM = 7;
+const int RCVNUM = 12;
 const int SNDNUM = 4;
 
 const int RCVPORT = 12345;

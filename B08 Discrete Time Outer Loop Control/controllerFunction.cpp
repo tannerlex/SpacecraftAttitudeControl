@@ -2,6 +2,7 @@
 #include "./receiveUdp.hpp"
 #include "./sendUdp.hpp"
 #include <cstring>
+#include "./Attitudes.hpp"
 #include <eigen3/Eigen/Dense>
 using namespace Eigen;
 
@@ -30,11 +31,13 @@ static const Vector3d Kd(
 );
 
 static const Vector3d wbi0_B(0,0,0);
-static const Vector3d wbistar_B(0,0,0);
+// static const Vector3d wbistar_B(0,0,0);
+static const Quat q0_BI(1,0,0,0);
 
 void controllerFunction()
 {
   Vector3d wbi_B, wbi_P, wbistar_B, wbistar_P, tc_B, tc_P, h_B, tl_B, t_B;
+  Quat q_BI, qstar_BI;
   double time;
 
   while (true)
@@ -49,10 +52,18 @@ void controllerFunction()
     wbi_B(0) = receiveBuffer[0];
     wbi_B(1) = receiveBuffer[1];
     wbi_B(2) = receiveBuffer[2];
-    wbistar_B(0) = receiveBuffer[3];
-    wbistar_B(1) = receiveBuffer[4];
-    wbistar_B(2) = receiveBuffer[5];
-    time = receiveBuffer[6];
+    q_BI.s = receiveBuffer[3];
+    q_BI.v(0) = receiveBuffer[4];
+    q_BI.v(1) = receiveBuffer[5];
+    q_BI.v(2) = receiveBuffer[6];
+    qstar_BI.s = receiveBuffer[7];
+    qstar_BI.v(0) = receiveBuffer[8];
+    qstar_BI.v(1) = receiveBuffer[9];
+    qstar_BI.v(2) = receiveBuffer[10];
+    time = receiveBuffer[11];
+    // wbistar_B(0) = receiveBuffer[3];
+    // wbistar_B(1) = receiveBuffer[4];
+    // wbistar_B(2) = receiveBuffer[5];
 
     /* unlock mutex to allow buffer access elsewhere */
     receiveLock.unlock();
