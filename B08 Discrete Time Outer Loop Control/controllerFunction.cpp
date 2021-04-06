@@ -30,15 +30,21 @@ static const Vector3d Kd(
   0.2461670000000000,   1.337558000000000,   1.386980000000000
 );
 
+static const double K = 5.138451736541828;
+static const double Zd = 0.999939997380546;
+static const double Pd = 0.500999395848231;
+
 static const Vector3d wbi0_B(0,0,0);
-// static const Vector3d wbistar_B(0,0,0);
-static const Quat q0_BI(1,0,0,0);
 
 void controllerFunction()
 {
-  Vector3d wbi_B, wbi_P, wbistar_B, wbistar_P, tc_B, tc_P, h_B, tl_B, t_B;
-  Quat q_BI, qstar_BI;
+  DCM A_PB_copy(A_PB);
+  Quat q_PB(Attitudes::dcm2quat(A_PB_copy));
   double time;
+  Eigen::Vector3d wbi_B, wbi_P, wbistar_B, wbistar_P, tc_B, tc_P,
+                  h_B, tl_B, t_B, theta, thz1, thz2, wz1, wz2;
+  Quat q_BI, qstar_BI, q_IP, qstar_PI, qe;
+  EulAxisAngle e;
 
   while (true)
   {
@@ -61,15 +67,24 @@ void controllerFunction()
     qstar_BI.v(1) = receiveBuffer[9];
     qstar_BI.v(2) = receiveBuffer[10];
     time = receiveBuffer[11];
-    // wbistar_B(0) = receiveBuffer[3];
-    // wbistar_B(1) = receiveBuffer[4];
-    // wbistar_B(2) = receiveBuffer[5];
 
     /* unlock mutex to allow buffer access elsewhere */
     receiveLock.unlock();
 
+    /* calculate the error quaternion */
+    q_IP = Attitudes::quatProdX(q_PB,q_BI); /* this is really q_PI */
+    q_IP = Attitudes::quatConjugate(q_IP); /* now this is q_IP */
+    qstar_PI = Attitudes::quatProdX(qstar_BI, q_PB);
+    qe = Attitudes::quatProdX(qstar_PI,q_IP);
+
+    /* calculate the controller input */
+    e = Attitudes::quat2eAxisAngle(qe);
+    theta = e.angle*e.axis;
+
+    /* implement difference equation of outer loop controller */
+    wbistar_P = K*thz1 - K*Zd*thz2 + (1+Pd)*wz1 - Pd*wz2;
+
     /* calculate the control commands */
-    wbistar_P = A_PB * wbistar_B;
     wbi_P = A_PB * wbi_B;
     tc_P(0) = Kd(0) * (wbistar_P(0) - wbi_P(0));
     tc_P(1) = Kd(1) * (wbistar_P(1) - wbi_P(1));
@@ -87,5 +102,11 @@ void controllerFunction()
     sendBuffer[3] = time;
     sendLock.unlock();
     sendCv.notify_one();
+
+    /* update the memory values */
+    thz2 = thz1;
+    thz1 = theta;
+    wz2 = wz1;
+    wz1 = wbistar_P;
   } /* end while (true) loop */
 } /* controllerFunction() */

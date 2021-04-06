@@ -112,19 +112,12 @@ K = 1/bode(Cd*CLTF1d*Gd,w_crossover);
 %% Simulate simulink model
 sim('discreteOuter',t_sim)
 
-% %% Time Delay
-% % The following was used to determine the time delay of 0.011 seconds:
-% lbclk = [];
-% for i = 1:size(lb_clock.Time,1)
-%     lbclk = [lbclk; lb_clock.Data(:,:,i)];
-% end
-% clk = clock.Data(1:size(lbclk,1));
-% dclock = clk - lbclk;
-% figure
-% plot(dclock)
-% title('Time Delay')
-% xlim([1 2000])
-% xlabel('sample')
-% ylabel('delay (seconds)')
+%% Time Delay
+% The following was used to determine the time delay of 0.011 seconds:
+dclk = squeeze(d_clock.Data);
+plot(d_clock.time,dclk)
+title('Time Delay')
+xlabel('sample')
+ylabel('delay (seconds)')
 
 
