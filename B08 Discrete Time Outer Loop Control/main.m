@@ -1,4 +1,4 @@
-%% Raspberry Pi Inner Loop Control - Assignment 7
+%% Raspberry Pi Outer Loop Control - Assignment 8
 % Name: Tanner Lex Jones
 
 %% Preliminaries
@@ -105,8 +105,10 @@ w_crossover = 2*pi*1.57;
 zd = exp(-wz*dt_sample);
 pd = exp(-wp*dt_sample);
 
+% define the outer loop controller
 Cd = 1/(z-1)*(z-zd)/(z-pd);
 K = 1/bode(Cd*CLTF1d*Gd,w_crossover);
+Cd = K*Cd;
 
 
 %% Outer loop design analysis
@@ -137,12 +139,13 @@ display(Outer_stepinfo1);
 
 
 %% Simulate simulink model
-sim('discreteOuter',t_sim)
+sim('discreteOuter',t_sim);
 
 
 %% Time Delay
 % The following was used to determine the time delay of 0.011 seconds:
 dclk = squeeze(d_clock.Data);
+figure
 plot(d_clock.time,dclk)
 title('Time Delay')
 xlabel('sample')
@@ -150,4 +153,25 @@ ylabel('delay (seconds)')
 
 
 %% Compare Results
+% These plots show the performance differences between the simulation and
+% the SIL implementations of the outer loop controller.
+figure
+plot(T_B_sim)
+hold on
+plot(T_B_sil)
+legend('SIM 1', 'SIM 2', 'SIM 3', 'SIL 1', 'SIL 2', 'SIL 3')
+title('Commanded Torque')
 
+figure
+plot(wbi_B_sim)
+hold on
+plot(wbi_B_sil)
+legend('SIM 1', 'SIM 2', 'SIM 3', 'SIL 1', 'SIL 2', 'SIL 3')
+title('Angular Velocity')
+
+figure
+plot(theta_sim)
+hold on
+plot(theta_sil)
+legend('SIM 1', 'SIM 2', 'SIM 3', 'SIL 1', 'SIL 2', 'SIL 3')
+title('Angle Error')
