@@ -20,7 +20,24 @@ sigmav = 1*pi/180; % measurement noise
 seedv = randi(2^32);
 seedw = randi(2^32);
 
+%% Simulate
 tsim = 60; % seconds
+results = sim('kalman',tsim);
 
-sim('kalman',tsim);
+%% Show results
+figure
+plot(results.theta_actual)
+hold on
+plot(results.theta_est)
+plot(results.p3sig_th)
+plot(results.m3sig_th)
+legend('Theta','Theta Estimation','+3 sigma','-3 sigma')
+
+figure
+plot(results.omega_actual)
+hold on
+plot(results.omega_est)
+plot(results.p3sig_o)
+plot(results.m3sig_o)
+legend('Omega','Omega Estimated','+3 sigma','-3 sigma')
 
