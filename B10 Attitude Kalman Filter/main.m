@@ -23,6 +23,7 @@ mass_properties
 
 %% Parameters
 % Time parameters
+tsim = 60; % simulation time in seconds
 dt_sim = 0.001;
 dt_gyros = 0.01; % Time between gyro measurements
 dt_v1 = 1; % Time between vector 1 measurements
@@ -70,3 +71,10 @@ nb_seed = randi([0, 2^32], 3, 1);
 nw_seed = randi([0, 2^32], 3, 1);
 nv1_seed = randi([0, 2^32], 3, 1);
 nv2_seed = randi([0, 2^32], 3, 1);
+
+
+%% Simulation
+data = sim('attitudeKalman', tsim);
+
+%% Results
+
