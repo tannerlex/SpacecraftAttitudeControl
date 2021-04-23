@@ -32,6 +32,7 @@ dt_v2 = 10; % Time between vector 2 measurements
 sigmav1 = 1*pi/180; % STDev of noise on vector 1 measurements
 sigmav2 = 0.1*pi/180; % STDev of noise on vector 2 measurements
 sigmaw = 1*pi/180; % STDev of noise on gyro measurements
+sigmab = 0.1*pi/180; % STDev of noise on gyro bias
 
 % Inertial Vectors
 v1_I = [1;0;0];
@@ -46,7 +47,7 @@ A0_BI = q2A(q0_BI);
 A0_IB = A0_BI';
 
 % Initial angular rate is [-10;20;-30]deg/sec
-w0_BI_B = [-10; 20; -30]*pi/180; % rad/sec
+wbi0_B = [-10; 20; -30]*pi/180; % rad/sec
 Bw0 = [10;-20;-30]*pi/180; % initial bias of the gyro (rad/sec)
 Bwhat0 = [0;0;0]; % initial estimate of gyro bias (rad/sec)
 

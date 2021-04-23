@@ -1,10 +1,10 @@
 function [A_BI] = triad(v1_B, v1_I, v2_B, v2_I)
 %TRIAD Implements the triad algorithm to calculate a direction cosine
 %matrix (DCM) representing the rotation of the body frame relative to the
-%inertial frame.
+%inertial frame. (See textbook section 5.1)
 %   This function accepts 2 vectors both in the body and inertial frames,
 %   prioritizing the first vector measurements and returns the calculated
-%   DCM.
+%   DCM. It is implemented as in Equation 5.6
 u1_B = v1_B/norm(v1_B);
 u1_I = v1_I/norm(v1_I);
 
