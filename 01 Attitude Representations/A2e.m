@@ -9,7 +9,7 @@ theta = acos((A(1,1)+A(2,2)+A(3,3)-1)/2);
 
 if theta == 0
     
-    e = [0; 0; 0];
+    e = [1; 0; 0];
     
 elseif theta == pi
         
